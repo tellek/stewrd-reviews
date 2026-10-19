@@ -1,0 +1,11 @@
+{
+  "id": "reviews",
+  "name": "PR Reviews",
+  "version": "0.1.0",
+  "category": "Utilities",
+  "icon": "default",
+  "entry": "dist/index.js",
+  "description": "Watches pull requests you author or review and drives Claude sessions to act on them",
+  "apiVersion": "1",
+  "background": true
+}

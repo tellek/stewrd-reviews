@@ -1,0 +1,28 @@
+{
+  "category": "Utilities",
+  "version": "0.1.0",
+
+  "_pollMinutes": "Minutes between checks for changes on every tracked pull request.",
+  "pollMinutes": 10,
+
+  "_autoMerge": "Author items: squash merge automatically once everything is addressed, checks are green and requiredApprovals is met. true or false.",
+  "autoMerge": false,
+
+  "_autoApprove": "Reviewer items: approve automatically once all of your comments are addressed. true or false.",
+  "autoApprove": false,
+
+  "_requiredApprovals": "Distinct approving reviewers needed before an author item is ready to merge.",
+  "requiredApprovals": 1,
+
+  "_runTimeoutMinutes": "A Claude run longer than this is killed and the item is marked Failed.",
+  "runTimeoutMinutes": 20,
+
+  "_initialReviewPrompt": "Runs once when a reviewer item is added (state Reviewing). A VERDICT instruction is appended automatically.",
+  "initialReviewPrompt": "Review this pull request. Read the diff with `gh pr diff` and the description with `gh pr view`. Post each concern as a review comment using `gh pr review --comment`. Do not approve or merge. If you have no concerns, say so and report the verdict as addressed.",
+
+  "_authorPrompt": "Default prompt when activity arrives on an author item. Editable per tab with the Edit Prompt button.",
+  "authorPrompt": "You are the author of this pull request. Address every new comment, review comment and thread comment in the activity below that raises a concern: make the fix in the working folder, commit it, and reply with `gh pr comment`. Do not push, approve or merge. Report needs_work if any concern is still open, addressed if all are handled, waiting if there is nothing to do yet.",
+
+  "_reviewerPrompt": "Default prompt when activity arrives on a reviewer item. Editable per tab with the Edit Prompt button.",
+  "reviewerPrompt": "You are a reviewer of this pull request. Look at the activity below for new commits that resolve or change your earlier comments, and replies to your comments. Reply with `gh pr comment` where useful. Do not approve or merge. Report addressed if all of your comments are resolved, needs_work if any are not, waiting if there is nothing new to judge."
+}

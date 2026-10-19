@@ -1,0 +1,11 @@
+{
+  "name": "stewrd-reviews",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test model.test.ts"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
