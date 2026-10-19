@@ -94,6 +94,10 @@ export function flush() {
   const pluginApi = api;
   pluginApi.storage.set(KEY, state.data).then(
     () => alive() && setStatus(pluginApi, "save", "idle"),
-    (err) => alive() && setStatus(pluginApi, "save", "error", `Save failed: ${err}`),
+    (err) => {
+      if (!alive()) return;
+      pluginApi.log.error(`Reviews: save failed: ${err}`);
+      setStatus(pluginApi, "save", "error", `Save failed: ${err}`);
+    },
   );
 }

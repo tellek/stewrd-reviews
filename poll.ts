@@ -7,6 +7,8 @@ import type { Entry, Item, Snapshot, State, Verdict } from "./model.ts";
 import { alive, busy, getApi, getItem, getState, patchItem } from "./store.ts";
 import { setStatus } from "./status.ts";
 
+const tag = (item: Item) => `${item.owner}/${item.repo}#${item.number}`;
+
 let polling = false;
 
 export { killAll };
@@ -31,6 +33,7 @@ export async function processItem(id: string) {
   const api = getApi();
   try {
     const startedAt = new Date().toISOString();
+    api.log.info(`Reviews: checking ${tag(getItem(id)!)}`);
     const me = await currentUser(api);
     const snap = await fetchSnapshot(api, getItem(id)!);
     if (!alive()) return;
@@ -41,7 +44,9 @@ export async function processItem(id: string) {
     await applyGate(id, snap);
   } catch (err) {
     if (!alive()) return;
-    patchItem(id, { state: "Failed", error: err instanceof Error ? err.message : String(err) });
+    const message = err instanceof Error ? err.message : String(err);
+    api.log.error(`Reviews: ${tag(getItem(id) ?? ({} as Item))} failed: ${message}`);
+    patchItem(id, { state: "Failed", error: message });
   } finally {
     busy.delete(id);
   }
@@ -79,6 +84,7 @@ async function run(item: Item, base: string, entries: Entry[]): Promise<Verdict 
   const api = getApi();
   const { settings } = getState();
   const cwd = await resolveCwd(api, item);
+  api.log.info(`Reviews: ${tag(item)} starting Claude in ${cwd} (session ${item.sessionId}, ${item.sessionStarted ? "resume" : "new"})`);
   const delta = formatDelta(entries);
   const oversize = delta.length > INLINE_DELTA_LIMIT;
   const deltaName = `delta-${item.id}.md`;
@@ -95,7 +101,9 @@ async function run(item: Item, base: string, entries: Entry[]): Promise<Verdict 
     });
     // Claude may commit but never pushes; the plugin pushes when HEAD moved.
     if (headBefore && (await gitHead(api, cwd)) !== headBefore) await gitPush(api, cwd);
-    return parseVerdict(output);
+    const verdict = parseVerdict(output);
+    api.log.info(`Reviews: ${tag(item)} Claude finished in ${cwd}, verdict ${verdict ?? "none"}: ${output.trim().slice(-300)}`);
+    return verdict;
   } finally {
     if (oversize && alive()) await api.fs.deleteFile(deltaName).catch(() => {});
   }
